@@ -27,7 +27,7 @@ name: Depoy on AWS application
 
 on:
   push:
-    branches: [ master ]
+    branches: [ main ]
 
 
 jobs:
