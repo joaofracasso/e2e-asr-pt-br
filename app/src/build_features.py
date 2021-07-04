@@ -3,6 +3,7 @@ import torchaudio
 import torch.nn as nn
 import numpy as np
 
+
 def avg_wer(wer_scores, combined_ref_len):
     return float(sum(wer_scores)) / float(combined_ref_len)
 
@@ -34,7 +35,7 @@ def _levenshtein_distance(ref, hyp):
     distance = np.zeros((2, n + 1), dtype=np.int32)
 
     # initialize distance matrix
-    for j in range(0,n + 1):
+    for j in range(0, n + 1):
         distance[0][j] = j
 
     # calculate levenshtein distance
@@ -68,7 +69,7 @@ def word_errors(reference, hypothesis, ignore_case=False, delimiter=' '):
     :return: Levenshtein distance and word number of reference sentence.
     :rtype: list
     """
-    if ignore_case == True:
+    if ignore_case:
         reference = reference.lower()
         hypothesis = hypothesis.lower()
 
@@ -93,12 +94,12 @@ def char_errors(reference, hypothesis, ignore_case=False, remove_space=False):
     :return: Levenshtein distance and length of reference sentence.
     :rtype: list
     """
-    if ignore_case == True:
+    if ignore_case:
         reference = reference.lower()
         hypothesis = hypothesis.lower()
 
     join_char = ' '
-    if remove_space == True:
+    if remove_space:
         join_char = ''
 
     reference = join_char.join(filter(None, reference.split(' ')))
@@ -178,6 +179,7 @@ def cer(reference, hypothesis, ignore_case=False, remove_space=False):
 
     cer = float(edit_distance) / ref_len
     return cer
+
 
 class TextTransform:
     """Maps characters to integers and vice versa"""
@@ -259,8 +261,8 @@ def data_processing(data, data_type="train"):
 
     spectrograms = nn.utils.rnn.pad_sequence(spectrograms, batch_first=True).unsqueeze(1).transpose(2, 3)
     labels = nn.utils.rnn.pad_sequence(labels, batch_first=True)
-
     return spectrograms, labels, input_lengths, label_lengths
+
 
 train_audio_transforms = nn.Sequential(
     torchaudio.transforms.MelSpectrogram(sample_rate=16000, n_mels=128),

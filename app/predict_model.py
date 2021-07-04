@@ -6,9 +6,9 @@ import torchaudio
 import torch.nn as nn
 import torch.nn.functional as F
 import onnxruntime as ort
-from torchaudio import transforms
 from torchaudio.transforms import MelSpectrogram
 from src.build_features import text_transform
+
 
 def GreedyDecoderPred(output, blank_label=28, collapse_repeated=True):
     arg_maxes = torch.argmax(output, dim=2)
@@ -17,7 +17,7 @@ def GreedyDecoderPred(output, blank_label=28, collapse_repeated=True):
         decode = []
         for j, index in enumerate(args):
             if index != blank_label:
-                if collapse_repeated and j != 0 and index == args[j -1]:
+                if collapse_repeated and j != 0 and index == args[j - 1]:
                     continue
                 decode.append(index.item())
         decodes.append(text_transform.int_to_text(decode))
@@ -33,7 +33,7 @@ def GreedyDecoder(output, labels, label_lengths, blank_label=28, collapse_repeat
         targets.append(text_transform.int_to_text(labels[i][:label_lengths[i]].tolist()))
         for j, index in enumerate(args):
             if index != blank_label:
-                if collapse_repeated and j != 0 and index == args[j -1]:
+                if collapse_repeated and j != 0 and index == args[j - 1]:
                     continue
                 decode.append(index.item())
         decodes.append(text_transform.int_to_text(decode))
@@ -48,8 +48,9 @@ def get_prediction(audio_bytes, inference_session):
     output = inference_session.run(None, {'input': spectrograms.numpy()})
     output = torch.tensor(output)[0]
     output = F.log_softmax(output, dim=2)
-    output = output.transpose(0, 1) 
+    output = output.transpose(0, 1)
     return GreedyDecoderPred(output.transpose(0, 1))
+
 
 if __name__ == "__main__":
     ort_session = ort.InferenceSession('app/models/e2e_asr_best.onnx')
@@ -61,5 +62,5 @@ if __name__ == "__main__":
     opt = parser.parse_args()
     with open(file_audio[0], 'rb') as f:
         audio_bytes = f.read()
-    output = get_prediction(audio_bytes,ort_session)
+    output = get_prediction(audio_bytes, ort_session)
     print(output)
