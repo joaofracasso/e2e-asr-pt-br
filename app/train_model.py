@@ -54,7 +54,7 @@ def test(model, device, test_loader, criterion):
 
             output = model(spectrograms)  # (batch, time, n_class)
             output = F.log_softmax(output, dim=2)
-            output = output.transpose(0, 1) # (time, batch, n_class)
+            output = output.transpose(0, 1)  # (time, batch, n_class)
 
             loss = criterion(output, labels, input_lengths, label_lengths)
             test_loss += loss.item() / len(test_loader)
@@ -78,7 +78,7 @@ if __name__ == "__main__":
         "rnn_dim": 512,
         "n_class": 29,
         "n_feats": 128,
-        "stride":2,
+        "stride": 2,
         "dropout": 0.1,
         "learning_rate": learning_rate,
         "batch_size": batch_size,
@@ -104,10 +104,10 @@ if __name__ == "__main__":
                                    collate_fn=lambda x: data_processing(x, 'train'),
                                    **kwargs)
     test_loader = data.DataLoader(dataset=test_dataset,
-                                batch_size=hparams['batch_size'],
-                                shuffle=False,
-                                collate_fn=lambda x: data_processing(x, 'valid'),
-                                **kwargs)
+                                  batch_size=hparams['batch_size'],
+                                  shuffle=False,
+                                  collate_fn=lambda x: data_processing(x, 'valid'),
+                                  **kwargs)
 
     model = SpeechRecognitionModel(
         hparams['n_cnn_layers'], hparams['n_rnn_layers'], hparams['rnn_dim'],
@@ -120,9 +120,9 @@ if __name__ == "__main__":
     optimizer = optim.AdamW(model.parameters(), hparams['learning_rate'])
     criterion = nn.CTCLoss(blank=28).to(device)
     scheduler = optim.lr_scheduler.OneCycleLR(optimizer, max_lr=hparams['learning_rate'], 
-                                            steps_per_epoch=int(len(train_loader)),
-                                            epochs=hparams['epochs'],
-                                            anneal_strategy='linear')
+                                              steps_per_epoch=int(len(train_loader)),
+                                              epochs=hparams['epochs'],
+                                              anneal_strategy='linear')
     print(int(len(test_loader)))
     for epoch in range(1, epochs + 1):
         torch.cuda.empty_cache()
@@ -130,16 +130,16 @@ if __name__ == "__main__":
         test_loss, avg_cer, avg_wer = test(model, device, test_loader, criterion)
         if test_loss < best_loss:
             x = torch.randn(batch_size, 1, 128, 1314, requires_grad=True).to(device)
-            torch.onnx.export(model,              
-                            x,                         
-                            "app/models/e2e_asr_best.onnx",   
-                            export_params=True,        
-                            opset_version=10,          
-                            do_constant_folding=True,  
-                            input_names = ['input'],   
-                            output_names = ['output'], 
-                            dynamic_axes={'input' : {0 : 'batch_size',
-                                                    3: 'spec_len'},    
-                                            'output' : {0 : 'batch_size'}}
-                            )
+            torch.onnx.export(model,
+                              x,
+                              "app/models/e2e_asr_best.onnx",
+                              export_params=True,
+                              opset_version=10,
+                              do_constant_folding=True,
+                              input_names=['input'],
+                              output_names=['output'],
+                              dynamic_axes={'input': {0: 'batch_size',
+                                                      3: 'spec_len'},
+                                            'output': {0: 'batch_size'}}
+                              )
             best_loss = test_loss

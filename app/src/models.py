@@ -10,9 +10,9 @@ class CNNLayerNorm(nn.Module):
 
     def forward(self, x):
         # x (batch, channel, feature, time)
-        x = x.transpose(2, 3).contiguous() # (batch, channel, time, feature)
+        x = x.transpose(2, 3).contiguous()  # (batch, channel, time, feature)
         x = self.layer_norm(x)
-        return x.transpose(2, 3).contiguous() # (batch, channel, feature, time) 
+        return x.transpose(2, 3).contiguous()  # (batch, channel, feature, time) 
 
 
 class ResidualCNN(nn.Module):
@@ -40,7 +40,7 @@ class ResidualCNN(nn.Module):
         x = self.dropout2(x)
         x = self.cnn2(x)
         x += residual
-        return x # (batch, channel, feature, time)
+        return x  # (batch, channel, feature, time)
 
 
 class BidirectionalGRU(nn.Module):
@@ -76,8 +76,8 @@ class SpeechRecognitionModel(nn.Module):
         ])
         self.fully_connected = nn.Linear(n_feats*32, rnn_dim)
         self.birnn_layers = nn.Sequential(*[
-            BidirectionalGRU(rnn_dim=rnn_dim if i==0 else rnn_dim*2,
-                             hidden_size=rnn_dim, dropout=dropout, batch_first=i==0)
+            BidirectionalGRU(rnn_dim=rnn_dim if i == 0 else rnn_dim*2,
+                             hidden_size=rnn_dim, dropout=dropout, batch_first=i == 0)
             for i in range(n_rnn_layers)
         ])
         self.classifier = nn.Sequential(
@@ -92,7 +92,7 @@ class SpeechRecognitionModel(nn.Module):
         x = self.rescnn_layers(x)
         sizes = x.size()
         x = x.view(sizes[0], sizes[1] * sizes[2], sizes[3])  # (batch, feature, time)
-        x = x.transpose(1, 2) # (batch, time, feature)
+        x = x.transpose(1, 2)  # (batch, time, feature)
         x = self.fully_connected(x)
         x = self.birnn_layers(x)
         x = self.classifier(x)
