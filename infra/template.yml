@@ -8,7 +8,7 @@ Parameters:
   ImageUri:
     Description: Path ECR
     Type: String
-    Default: 000326655062.dkr.ecr.sa-east-1.amazonaws.com/banknotebrazil:latest
+    Default: 000326655062.dkr.ecr.sa-east-1.amazonaws.com/e2e-asr-pt-br:latest
 
 Resources:
   Function:
@@ -25,7 +25,7 @@ Resources:
   Role:
     Type: AWS::IAM::Role
     Properties:
-      RoleName: banknotebrazil-lambda-role
+      RoleName: e2e-asr-pt-br-lambda-role
       AssumeRolePolicyDocument:
         Version: 2012-10-17
         Statement:

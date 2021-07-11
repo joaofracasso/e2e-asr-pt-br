@@ -1,14 +1,8 @@
 ![Python application](https://github.com/joaofracasso/banknoteBrazil/workflows/Python%20application/badge.svg)
 # e2easr: End to end speech recognition
-This repository contains a classification of Brazilian paper money.
+This repository contains a end to end Brazilian speech recognition.
 
 ## Training Brazilian speech recognition
-
-You can download the freely available datasets with the provided script (it may take a while):
-
-```bash
-$ python -m pip install -r app/src/data/alcaim.py
-```
 
 ### Requirements
 Python 3.8 or later with all [requirements.txt](https://github.com/joaofracasso/e2e-asr-pt-br/blob/master/app/requirements.txt) dependencies installed. To install run:
@@ -19,14 +13,14 @@ $ python -m pip install -r app/requirements.txt
 
 ### Environments
 
-BanknoteBrazil may be run in any of the following up-to-date verified environments ([Python](https://www.python.org/) and [PyTorch](https://pytorch.org/) preinstalled):
+Brazilian speech recognition may be run in any of the following up-to-date verified environments ([Python](https://www.python.org/) and [PyTorch](https://pytorch.org/) preinstalled):
 
 - **Codespace** See [Codespace](https://github.com/features/codespaces)
 - **VS Code** See [Vs Code](https://code.visualstudio.com/docs/remote/containers)
 
 ### Train the network
 
-You can train the network with the `train.py` script. For more usage information see [this](train.py). To train with the default parameters:
+You can train the network with the `train_model.py` script. For more usage information see [this](train_model.py). To train with the default parameters:
 
 ```bash
 $ python app/train_model.py
@@ -78,4 +72,4 @@ This project is currently maintained by João Victor Calvo Fracasso and is for a
 
 ## License
 
-The codes and the pretrained model in this repository are under the MIT license as specified by the LICENSE file. We use our labeled dataset to train the scratch detection model.
+The codes in this repository are under the MIT license as specified by the LICENSE file. We use our labeled dataset to train the scratch detection model.
