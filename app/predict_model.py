@@ -49,7 +49,7 @@ def get_prediction(audio_bytes, inference_session):
     output = torch.tensor(output)[0]
     output = F.log_softmax(output, dim=2)
     output = output.transpose(0, 1)
-    return GreedyDecoderPred(output.transpose(0, 1))
+    return GreedyDecoderPred(output.transpose(0, 1))[0]
 
 
 if __name__ == "__main__":

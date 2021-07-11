@@ -6,14 +6,15 @@ sys.path.insert(0, os.path.join(os.path.dirname(
 import onnxruntime as ort
 
 import pytest
-from src.modeling.predict_model import get_prediction
+from predict_model import get_prediction
 
-files = "data/test/2reaisVerso/compressed_20_9551306.jpeg"
+files = "data/lapsbm-val/LapsBM-F004/LapsBM_0061.wav"
 
-@pytest.mark.parametrize('image', [files])
-def test_get_prediction(image):
-    ort_session = ort.InferenceSession('app/models/banknote_best.onnx')
-    with open(image, 'rb') as f:
-        image_bytes = f.read()
-        class_ = get_prediction(image_bytes, ort_session)
+
+@pytest.mark.parametrize('audio', [files])
+def test_get_prediction(audio):
+    ort_session = ort.InferenceSession('app/models/e2e_asr_best.onnx')
+    with open(audio, 'rb') as f:
+        audio_bytes = f.read()
+        class_ = get_prediction(audio_bytes, ort_session)
     assert isinstance(class_, str)
