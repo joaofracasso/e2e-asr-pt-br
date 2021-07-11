@@ -1,10 +1,7 @@
 import os
 
 import onnxruntime as ort
-import torch
-import torch.nn.functional as F
 import torch.utils.data as data
-from torch.utils.data import DataLoader
 
 from src.build_features import cer, data_processing, wer
 from src.datasets.lapsbm import Lapsbm
@@ -15,6 +12,8 @@ batch_size = 1
 
 if __name__ == "__main__":
     ort_session = ort.InferenceSession('app/models/e2e_asr_best.onnx')
+    if not os.path.isdir("./data"):
+        os.makedirs("./data")
     test_dataset = Lapsbm("./data", url="lapsbm-test", download=True)
     test_loader = data.DataLoader(dataset=test_dataset,
                                 batch_size=batch_size,
