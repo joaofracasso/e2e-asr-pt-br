@@ -39,17 +39,24 @@ def GreedyDecoder(output, labels, label_lengths, blank_label=28, collapse_repeat
         decodes.append(text_transform.int_to_text(decode))
         return decodes, targets
 
-
-def get_prediction(audio_bytes, inference_session):
+def get_features(audio_bytes):
     waveform, sample_rate = torchaudio.load(io.BytesIO(audio_bytes))
     audio_transform = MelSpectrogram(sample_rate=sample_rate)
     spectrograms = audio_transform(waveform).squeeze(0).transpose(0, 1)
-    spectrograms = nn.utils.rnn.pad_sequence([spectrograms], batch_first=True).unsqueeze(1).transpose(2, 3)
+    return nn.utils.rnn.pad_sequence([spectrograms], batch_first=True).unsqueeze(1).transpose(2, 3)
+
+
+def get_transcription(spectrograms, inference_session):
     output = inference_session.run(None, {'input': spectrograms.numpy()})
     output = torch.tensor(output)[0]
     output = F.log_softmax(output, dim=2)
-    output = output.transpose(0, 1)
-    return GreedyDecoderPred(output.transpose(0, 1))
+    return output.transpose(0, 1)
+
+
+def get_prediction(audio_bytes, inference_session):
+    spectrograms = get_features(audio_bytes)
+    output = get_transcription(spectrograms, inference_session)
+    return GreedyDecoderPred(output.transpose(0, 1))[0]
 
 
 if __name__ == "__main__":
