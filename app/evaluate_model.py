@@ -1,34 +1,34 @@
 import os
 
 import onnxruntime as ort
-import numpy as np
-from sklearn.metrics import classification_report
+import torch
+import torch.nn.functional as F
+import torch.utils.data as data
 from torch.utils.data import DataLoader
-from torchvision import datasets, transforms
 
+from src.build_features import cer, data_processing, wer
+from src.datasets.lapsbm import Lapsbm
+from predict_model import get_transcription, GreedyDecoder
 
 data_dir = "data"
-input_size = [224, 224]
 batch_size = 1
 
 if __name__ == "__main__":
-    ort_session = ort.InferenceSession('app/models/banknote_best.onnx')
-    data_transforms = {
-        'validation': transforms.Compose([
-            transforms.Resize(input_size),
-            transforms.CenterCrop(input_size),
-            transforms.ToTensor(),
-            transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
-        ]),
-    }
-    image_datasets = {x: datasets.ImageFolder(os.path.join(data_dir, x), data_transforms[x]) for x in ['validation']}
-    dataloaders_dict = {x: DataLoader(image_datasets[x], batch_size=batch_size, shuffle=True, num_workers=4) for x in ['validation']}
-    outputs = []
-    labels = []
-    for inputs, label in dataloaders_dict["validation"]:
-        output = ort_session.run(None, {'input.1': inputs.numpy()})
-        output = np.argmax(output[0], axis=1)[0]
-        outputs.append(output)
-        labels.append(label.data.tolist())
-    labels = sum(labels, [])
-    print(classification_report(labels, outputs))
+    ort_session = ort.InferenceSession('app/models/e2e_asr_best.onnx')
+    test_dataset = Lapsbm("./data", url="lapsbm-test", download=True)
+    test_loader = data.DataLoader(dataset=test_dataset,
+                                batch_size=batch_size,
+                                shuffle=False,
+                                collate_fn=lambda x: data_processing(x, 'valid'))
+    test_cer, test_wer = [], []
+    for i, _data in enumerate(test_loader):
+        spectrograms, labels, input_lengths, label_lengths = _data 
+        output = get_transcription(spectrograms, ort_session)
+        decoded_preds, decoded_targets = GreedyDecoder(output.transpose(0, 1), labels, label_lengths)
+        for j in range(len(decoded_preds)):
+            test_cer.append(cer(decoded_targets[j], decoded_preds[j]))
+            test_wer.append(wer(decoded_targets[j], decoded_preds[j]))
+    avg_cer = sum(test_cer)/len(test_cer)
+    avg_wer = sum(test_wer)/len(test_wer)
+    print("Target :{}\nPredict :{}".format(decoded_targets[j], decoded_preds[j]))
+    print('Test set: Average CER: {:4f} Average WER: {:.4f}\n'.format(avg_cer, avg_wer))
