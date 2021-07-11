@@ -7,11 +7,11 @@ import onnxruntime as ort
 
 import pytest
 from predict_model import get_prediction
+from src.datasets.lapsbm import Lapsbm
 
-files = "data/lapsbm-val/LapsBM-F004/LapsBM_0061.wav"
+test_dataset = Lapsbm("./data", url="lapsbm-test", download=True)
 
-
-@pytest.mark.parametrize('audio', [files])
+@pytest.mark.parametrize('audio', test_dataset._walker)
 def test_get_prediction(audio):
     ort_session = ort.InferenceSession('app/models/e2e_asr_best.onnx')
     with open(audio, 'rb') as f:
