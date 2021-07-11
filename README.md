@@ -4,12 +4,6 @@ This repository contains a classification of Brazilian paper money.
 
 ## Training Brazilian speech recognition
 
-You can download the freely available datasets with the provided script (it may take a while):
-
-```bash
-$ python -m pip install -r app/src/data/alcaim.py
-```
-
 ### Requirements
 Python 3.8 or later with all [requirements.txt](https://github.com/joaofracasso/e2e-asr-pt-br/blob/master/app/requirements.txt) dependencies installed. To install run:
 

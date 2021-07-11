@@ -9,8 +9,8 @@ import torchaudio
 from src.models import SpeechRecognitionModel
 from src.build_features import cer, wer, data_processing
 from predict_model import GreedyDecoder
-from src.data.alcaim import Alcaim
-from src.data.lapsbm import Lapsbm
+from src.datasets.alcaim import Alcaim
+from src.datasets.lapsbm import Lapsbm
 
 learning_rate = 5e-4
 batch_size = 8
@@ -95,7 +95,7 @@ if __name__ == "__main__":
         os.makedirs("./data")
 
     train_dataset = Alcaim("./data")
-    test_dataset = Lapsbm("./data")
+    test_dataset = Lapsbm("./data", url="lapsbm-val", download=True)
 
     kwargs = {'pin_memory': True} if use_cuda else {}
     train_loader = data.DataLoader(dataset=train_dataset,
@@ -126,7 +126,7 @@ if __name__ == "__main__":
     print(int(len(test_loader)))
     for epoch in range(1, epochs + 1):
         torch.cuda.empty_cache()
-        train(model, device, train_loader, criterion, optimizer, scheduler, epoch)
+        #train(model, device, train_loader, criterion, optimizer, scheduler, epoch)
         test_loss, avg_cer, avg_wer = test(model, device, test_loader, criterion)
         if test_loss < best_loss:
             x = torch.randn(batch_size, 1, 128, 1314, requires_grad=True).to(device)
